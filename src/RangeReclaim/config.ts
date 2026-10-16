@@ -5,6 +5,7 @@ export interface RangeReclaimConfig extends StrategyConfig {
   INTERVAL: "15" | "60";
   RANGE_RECLAIM_RANGE_INTERVAL: "60" | "240";
   RANGE_RECLAIM_WAIT_BARS: number;
+  RANGE_RECLAIM_MAX_COST_SHARE: number;
   RANGE_RECLAIM_MAX_DEPTH_RATIO: number;
   RANGE_RECLAIM_ATR_LENGTH: number;
   RANGE_RECLAIM_STOP_ATR_BUFFER: number;
@@ -30,6 +31,7 @@ export const defaultConfig: RangeReclaimConfig = {
   ML_ENABLED: false,
   RANGE_RECLAIM_RANGE_INTERVAL: "240",
   RANGE_RECLAIM_WAIT_BARS: 1,
+  RANGE_RECLAIM_MAX_COST_SHARE: 0,
   RANGE_RECLAIM_MAX_DEPTH_RATIO: 0.25,
   RANGE_RECLAIM_ATR_LENGTH: 14,
   RANGE_RECLAIM_STOP_ATR_BUFFER: 0.1,
@@ -71,6 +73,8 @@ export function parseConfig(input: unknown): RangeReclaimConfig {
     c.RANGE_RECLAIM_WAIT_BARS > 10000
   )
     fail("RANGE_RECLAIM_WAIT_BARS");
+  if (c.RANGE_RECLAIM_MAX_COST_SHARE < 0 || c.RANGE_RECLAIM_MAX_COST_SHARE > 1)
+    fail("RANGE_RECLAIM_MAX_COST_SHARE");
   for (const key of [
     "MAX_LOSS_VALUE",
     "RANGE_RECLAIM_MAX_DEPTH_RATIO",

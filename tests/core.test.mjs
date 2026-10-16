@@ -225,3 +225,90 @@ test("a time gap cannot extend the maximum holding deadline", async () => {
   h.position({ symbol: "TESTUSDT", qty: 1, price: 101, direction: "LONG" });
   assert.equal((await h.next(bar(9))).code, "RANGE_RECLAIM_MAX_HOLD");
 });
+
+for (const [direction, sweep] of [
+  ["LONG", long],
+  ["SHORT", short],
+]) {
+  test(`${direction}: cost share rejects with diagnostic; zero control preserves exact economics`, async () => {
+    const opts = {
+      RISK_FEE_RATE: 0.003,
+      LONG: { minRiskRatio: 0.1 },
+      SHORT: { minRiskRatio: 0.1 },
+    };
+    const base = await harness(opts),
+      zero = await harness({ ...opts, RANGE_RECLAIM_MAX_COST_SHARE: 0 }),
+      filtered = await harness({ ...opts, RANGE_RECLAIM_MAX_COST_SHARE: 0.15 });
+    const decision = await base.next(sweep());
+    assert.equal(decision.kind, "entry");
+    assert.deepEqual(await zero.next(sweep()), decision);
+    assert.equal(
+      Object.hasOwn(decision.signal.additionalIndicators, "costShare"),
+      false,
+    );
+    assert.equal(
+      (await filtered.next(sweep())).code,
+      "RANGE_RECLAIM_COST_SHARE",
+    );
+    assert.equal(
+      (await filtered.next(sweep(5))).code,
+      "RANGE_RECLAIM_RANGE_SPENT",
+    );
+    const admitted = await harness({
+      ...opts,
+      RANGE_RECLAIM_MAX_COST_SHARE: 0.3,
+    });
+    const d = await admitted.next(sweep());
+    assert.equal(d.kind, "entry");
+    assert.deepEqual(d.orderPlan, decision.orderPlan);
+    assert.ok(d.signal.additionalIndicators.costShare > 0.15);
+    assert.ok(d.signal.additionalIndicators.costShare < 0.3);
+  });
+  test(`${direction}: exact target cost formula includes fee/slippage/impact and admits equality`, async () => {
+    const opts = {
+      RISK_FEE_RATE: 0.001,
+      RISK_SLIPPAGE_BPS: 2,
+      RISK_MARKET_IMPACT_BPS: 3,
+      LONG: { minRiskRatio: 0.1 },
+      SHORT: { minRiskRatio: 0.1 },
+    };
+    const candle = sweep();
+    const target = 105,
+      slip = 0.0005,
+      sign = direction === "LONG" ? 1 : -1;
+    const entryCost =
+      candle.close * slip +
+      candle.close * (1 + sign * slip) * opts.RISK_FEE_RATE;
+    const targetCost =
+      target * slip + target * (1 - sign * slip) * opts.RISK_FEE_RATE;
+    const expected = (entryCost + targetCost) / Math.abs(target - candle.close);
+    const d = await (
+      await harness({ ...opts, RANGE_RECLAIM_MAX_COST_SHARE: expected })
+    ).next(candle);
+    assert.equal(d.kind, "entry");
+    assert.equal(d.signal.additionalIndicators.costShare, expected);
+    const rejected = await (
+      await harness({ ...opts, RANGE_RECLAIM_MAX_COST_SHARE: expected - 1e-10 })
+    ).next(candle);
+    assert.equal(rejected.code, "RANGE_RECLAIM_COST_SHARE");
+  });
+}
+
+test("cost-share checkpoint restores pending decision and rejected range without retry", async () => {
+  const opts = {
+    RISK_FEE_RATE: 0.003,
+    RANGE_RECLAIM_MAX_COST_SHARE: 0.15,
+    LONG: { minRiskRatio: 0.1 },
+  };
+  const h = await harness(opts);
+  await h.next(long(4, { close: 99 }));
+  const r = await harness(opts, [], h.snapshot());
+  const original = await h.next(long(5));
+  assert.equal(original.code, "RANGE_RECLAIM_COST_SHARE");
+  assert.deepEqual(await r.next(long(5)), original);
+  const rejected = await harness(opts, [], r.snapshot());
+  assert.equal(
+    (await rejected.next(long(6))).code,
+    "RANGE_RECLAIM_RANGE_SPENT",
+  );
+});

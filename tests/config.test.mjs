@@ -48,3 +48,22 @@ test("backtest runtime execution overrides remain valid strict config", () => {
   assert.equal(parsed.CLOSE_OPPOSITE_POSITIONS, false);
   assert.throws(() => parseConfig({ MAKE_ORDERS: "true" }), /RangeReclaim/);
 });
+
+test("cost share is disabled by default and strictly bounded", () => {
+  assert.equal(defaultConfig.RANGE_RECLAIM_MAX_COST_SHARE, 0);
+  for (const value of ["0", null, false, -0.1, 1.1, NaN, Infinity])
+    assert.throws(
+      () => parseConfig({ RANGE_RECLAIM_MAX_COST_SHARE: value }),
+      /RangeReclaim/,
+    );
+  assert.equal(
+    parseConfig({ RANGE_RECLAIM_MAX_COST_SHARE: 1 })
+      .RANGE_RECLAIM_MAX_COST_SHARE,
+    1,
+  );
+  for (const key of [
+    "RANGE_RECLAIM_MIN_RECLAIM_RATIO",
+    "RANGE_RECLAIM_CONFIRM_BARS",
+  ])
+    assert.throws(() => parseConfig({ [key]: 0 }), /RangeReclaim/);
+});

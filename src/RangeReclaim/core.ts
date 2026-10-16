@@ -88,6 +88,13 @@ export const createRangeReclaimCore: CreateStrategyCore<
       feeRate: c.RISK_FEE_RATE,
       slippageBps: c.RISK_SLIPPAGE_BPS + c.RISK_MARKET_IMPACT_BPS,
     });
+    const costShare =
+      economics.roundTripEntryTargetCostPerUnit / economics.grossRewardPerUnit;
+    if (
+      c.RANGE_RECLAIM_MAX_COST_SHARE > 0 &&
+      costShare > c.RANGE_RECLAIM_MAX_COST_SHARE
+    )
+      return strategyApi.skip("RANGE_RECLAIM_COST_SHARE");
     const qty = c.MAX_LOSS_VALUE / economics.lossPerUnit;
     if (
       economics.netRiskRatio < side.minRiskRatio ||
@@ -113,6 +120,7 @@ export const createRangeReclaimCore: CreateStrategyCore<
       additionalIndicators: {
         rangeReclaim: signal,
         netRiskRatio: economics.netRiskRatio,
+        ...(c.RANGE_RECLAIM_MAX_COST_SHARE > 0 ? { costShare } : {}),
       },
     });
     state.update((draft) => {
