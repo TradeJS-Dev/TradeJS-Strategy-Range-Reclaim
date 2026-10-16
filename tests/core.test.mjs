@@ -312,3 +312,35 @@ test("cost-share checkpoint restores pending decision and rejected range without
     "RANGE_RECLAIM_RANGE_SPENT",
   );
 });
+
+for (const direction of ["LONG", "SHORT"]) {
+  test(`${direction}: restored missing/invalid/future entry age exits conservatively`, async () => {
+    for (const age of [undefined, null, -1, 4.5, 6 * step, NaN, Infinity]) {
+      const h = await harness();
+      await h.next(direction === "LONG" ? long() : short());
+      const saved = h.snapshot();
+      const state = Object.values(saved)[0];
+      if (age === undefined) delete state.entryTimestamp;
+      else state.entryTimestamp = age;
+      const r = await harness({}, [], JSON.parse(JSON.stringify(saved)));
+      r.position({ symbol: "TESTUSDT", qty: 1, price: 105, direction });
+      const d = await r.next(bar(5));
+      assert.equal(d.kind, "exit");
+      assert.equal(d.code, "RANGE_RECLAIM_UNKNOWN_POSITION_AGE");
+    }
+  });
+}
+test("strict source-age expiry restores pending core and spends range without entry", async () => {
+  const opts = {
+    RANGE_RECLAIM_MAX_SOURCE_AGE_BARS: 2,
+    RANGE_RECLAIM_WAIT_BARS: 3,
+  };
+  const h = await harness(opts);
+  await h.next(bar(4));
+  await h.next(long(5, { close: 99 }));
+  const r = await harness(opts, [], h.snapshot());
+  const d = await h.next(long(6));
+  assert.deepEqual(await r.next(long(6)), d);
+  assert.equal(d.code, "RANGE_RECLAIM_SOURCE_EXPIRED");
+  assert.equal((await r.next(long(7))).code, "RANGE_RECLAIM_RANGE_SPENT");
+});

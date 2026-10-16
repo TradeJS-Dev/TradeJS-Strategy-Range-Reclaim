@@ -67,3 +67,17 @@ test("cost share is disabled by default and strictly bounded", () => {
   ])
     assert.throws(() => parseConfig({ [key]: 0 }), /RangeReclaim/);
 });
+
+test("source-age control is disabled by default and requires a bounded integer", () => {
+  assert.equal(defaultConfig.RANGE_RECLAIM_MAX_SOURCE_AGE_BARS, 0);
+  assert.equal(
+    parseConfig({ RANGE_RECLAIM_MAX_SOURCE_AGE_BARS: 4 })
+      .RANGE_RECLAIM_MAX_SOURCE_AGE_BARS,
+    4,
+  );
+  for (const value of ["4", null, false, -1, 0.5, 10001, NaN, Infinity])
+    assert.throws(
+      () => parseConfig({ RANGE_RECLAIM_MAX_SOURCE_AGE_BARS: value }),
+      /RangeReclaim/,
+    );
+});

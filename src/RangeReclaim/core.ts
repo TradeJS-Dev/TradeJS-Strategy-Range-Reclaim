@@ -42,18 +42,22 @@ export const createRangeReclaimCore: CreateStrategyCore<
     });
     const position = await strategyApi.getCurrentPosition();
     if (position && position.qty > 0) {
+      const unknownEntryAge =
+        s.entryTimestamp === null ||
+        !Number.isSafeInteger(s.entryTimestamp) ||
+        s.entryTimestamp < 0 ||
+        s.entryTimestamp > timestamp;
       // Position has no opening timestamp in the public contract. A checkpoint is
       // required to know age; close conservatively when that evidence is absent.
       if (
-        s.entryTimestamp === null ||
-        timestamp >= s.entryTimestamp + c.RANGE_RECLAIM_MAX_HOLD_BARS * step
+        unknownEntryAge ||
+        timestamp >= s.entryTimestamp! + c.RANGE_RECLAIM_MAX_HOLD_BARS * step
       ) {
         return strategyApi.exit({
           direction: position.direction,
-          code:
-            s.entryTimestamp === null
-              ? "RANGE_RECLAIM_UNKNOWN_POSITION_AGE"
-              : "RANGE_RECLAIM_MAX_HOLD",
+          code: unknownEntryAge
+            ? "RANGE_RECLAIM_UNKNOWN_POSITION_AGE"
+            : "RANGE_RECLAIM_MAX_HOLD",
         });
       }
       return strategyApi.skip("RANGE_RECLAIM_POSITION_EXISTS");

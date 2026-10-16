@@ -147,6 +147,13 @@ export function createRangeReclaimEngine({
       s.result.reason = "RANGE_SPENT";
       return structuredClone(s.result);
     }
+    if (
+      c.RANGE_RECLAIM_MAX_SOURCE_AGE_BARS > 0 &&
+      bar.timestamp >= r.end + c.RANGE_RECLAIM_MAX_SOURCE_AGE_BARS * step
+    ) {
+      cancel("SOURCE_EXPIRED");
+      return structuredClone(s.result);
+    }
     const below = bar.low < r.low,
       above = bar.high > r.high;
     if (below && above) {

@@ -251,3 +251,72 @@ test("state stays bounded after thousands of bars", () => {
   assert.ok(JSON.stringify(snapshot).length < 2500);
   assert.equal(snapshot.atrCount, 2);
 });
+
+for (const [direction, sweep] of [
+  ["LONG", long],
+  ["SHORT", short],
+]) {
+  test(`${direction}: source-age deadline is strict, spends range and cannot extend wait`, () => {
+    const opts = {
+      RANGE_RECLAIM_MAX_SOURCE_AGE_BARS: 2,
+      RANGE_RECLAIM_WAIT_BARS: 3,
+    };
+    const e = engine(opts);
+    e.next(bar(4));
+    assert.equal(
+      e.next(sweep(5, { close: direction === "LONG" ? 99 : 111 })).reason,
+      "WAIT_RECLAIM",
+    );
+    const restored = createRangeReclaimEngine({
+      config: config(opts),
+      state: JSON.parse(JSON.stringify(e.getState())),
+    });
+    assert.equal(e.next(sweep(6)).reason, "SOURCE_EXPIRED");
+    assert.deepEqual(restored.next(sweep(6)), e.next(sweep(6)));
+    assert.equal(e.next(sweep(7)).reason, "RANGE_SPENT");
+    const fresh = engine(opts);
+    fresh.next(bar(4));
+    assert.ok(fresh.next(sweep(5)).signal); // last eligible candle, one bar before equality
+  });
+}
+test("15m/4h maxage4 uses UTC source end, excluding equality after first four bars", () => {
+  const opts = {
+    RANGE_RECLAIM_RANGE_INTERVAL: "240",
+    RANGE_RECLAIM_MAX_SOURCE_AGE_BARS: 4,
+  };
+  const candles = Array.from({ length: 16 }, (_, i) => bar(i));
+  const e = engine(opts, candles);
+  for (let i = 16; i < 20; i++)
+    assert.equal(e.next(bar(i)).reason, "WAIT_SWEEP");
+  assert.equal(e.next(long(20)).reason, "SOURCE_EXPIRED");
+  assert.equal(e.getState().range.end, 16 * step);
+  assert.equal(e.getState().range.high, 110); // forming HTF candle is not the source
+  const before = engine(opts, candles);
+  for (let i = 16; i < 19; i++) before.next(bar(i));
+  assert.ok(before.next(long(19)).signal);
+});
+test("source replacement gets a new deadline after expired old range", () => {
+  const e = engine({ RANGE_RECLAIM_MAX_SOURCE_AGE_BARS: 1 });
+  e.next(bar(4));
+  assert.equal(e.next(long(5)).reason, "SOURCE_EXPIRED");
+  e.next(bar(6));
+  e.next(bar(7));
+  const out = e.next(bar(8, { low: 98, close: 100 }));
+  assert.ok(out.signal);
+  assert.equal(out.signal.range.timestamp, 4 * step);
+});
+test("zero source age preserves existing complete outputs, including gaps and wait expiry", () => {
+  const a = engine(),
+    b = engine({
+      RANGE_RECLAIM_MAX_SOURCE_AGE_BARS: 0,
+    });
+  for (const x of [
+    long(4, { close: 99 }),
+    long(5),
+    bar(6),
+    bar(7),
+    short(8),
+    bar(10),
+  ])
+    assert.deepEqual(a.next(x), b.next(x));
+});
