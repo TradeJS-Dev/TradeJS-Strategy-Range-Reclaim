@@ -37,3 +37,14 @@ test("strict config rejects typos, coercion, invalid options and side directions
   c.LONG.enable = false;
   assert.equal(defaultConfig.LONG.enable, true);
 });
+
+test("backtest runtime execution overrides remain valid strict config", () => {
+  const parsed = parseConfig({
+    ...defaultConfig,
+    MAKE_ORDERS: true,
+    CLOSE_OPPOSITE_POSITIONS: false,
+  });
+  assert.equal(parsed.MAKE_ORDERS, true);
+  assert.equal(parsed.CLOSE_OPPOSITE_POSITIONS, false);
+  assert.throws(() => parseConfig({ MAKE_ORDERS: "true" }), /RangeReclaim/);
+});

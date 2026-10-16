@@ -21,6 +21,8 @@ export interface RangeReclaimConfig extends StrategyConfig {
 /** Research defaults, not validated trading parameters. */
 export const defaultConfig: RangeReclaimConfig = {
   ENV: "BACKTEST",
+  MAKE_ORDERS: true,
+  CLOSE_OPPOSITE_POSITIONS: false,
   INTERVAL: "15",
   BACKTEST_PRICE_MODE: "open",
   BACKTEST_ENTRY_DELAY_BARS: 1,
