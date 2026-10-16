@@ -1,0 +1,33 @@
+{
+  "ENV": ["BACKTEST"],
+  "INTERVAL": ["15"],
+  "BACKTEST_PRICE_MODE": ["open"],
+  "BACKTEST_ENTRY_DELAY_BARS": [1],
+  "AI_ENABLED": [false],
+  "ML_ENABLED": [false],
+  "RANGE_RECLAIM_RANGE_INTERVAL": ["240"],
+  "RANGE_RECLAIM_WAIT_BARS": [1],
+  "RANGE_RECLAIM_MAX_DEPTH_RATIO": [0.25],
+  "RANGE_RECLAIM_ATR_LENGTH": [14],
+  "RANGE_RECLAIM_STOP_ATR_BUFFER": [0.1],
+  "RANGE_RECLAIM_TARGET": ["midpoint"],
+  "RANGE_RECLAIM_MAX_HOLD_BARS": [16],
+  "MAX_LOSS_VALUE": [10],
+  "RISK_FEE_RATE": [0.001],
+  "RISK_SLIPPAGE_BPS": [0],
+  "RISK_MARKET_IMPACT_BPS": [0],
+  "LONG": [
+    {
+      "enable": true,
+      "direction": "LONG",
+      "minRiskRatio": 1
+    }
+  ],
+  "SHORT": [
+    {
+      "enable": true,
+      "direction": "SHORT",
+      "minRiskRatio": 1
+    }
+  ]
+}
