@@ -1,6 +1,6 @@
 {
   "name": "@tradejs/strategy-range-reclaim",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Closed higher-timeframe range failed-breakout reclaim strategy for TradeJS.",
   "keywords": [
     "ai",
