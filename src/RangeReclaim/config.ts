@@ -3,6 +3,8 @@ import type { StrategyConfig } from "@tradejs/types";
 
 export interface RangeReclaimConfig extends StrategyConfig {
   INTERVAL: "15" | "60";
+  RANGE_RECLAIM_ENTRY_POLICY:
+    "off" | "purple" | "orange" | "purple-short" | "intersection" | "union";
   RANGE_RECLAIM_RANGE_INTERVAL: "60" | "240";
   RANGE_RECLAIM_WAIT_BARS: number;
   RANGE_RECLAIM_MAX_COST_SHARE: number;
@@ -23,6 +25,7 @@ export interface RangeReclaimConfig extends StrategyConfig {
 /** Research defaults, not validated trading parameters. */
 export const defaultConfig: RangeReclaimConfig = {
   ENV: "BACKTEST",
+  RANGE_RECLAIM_ENTRY_POLICY: "off",
   MAKE_ORDERS: true,
   CLOSE_OPPOSITE_POSITIONS: false,
   INTERVAL: "15",
@@ -56,6 +59,22 @@ export function parseConfig(input: unknown): RangeReclaimConfig {
   const fail = (key: string): never => {
     throw new Error(`RangeReclaim.${key} is invalid`);
   };
+  if (
+    ![
+      "off",
+      "purple",
+      "orange",
+      "purple-short",
+      "intersection",
+      "union",
+    ].includes(c.RANGE_RECLAIM_ENTRY_POLICY)
+  )
+    fail("RANGE_RECLAIM_ENTRY_POLICY");
+  if (
+    c.RANGE_RECLAIM_ENTRY_POLICY !== "off" &&
+    (c.INTERVAL !== "15" || c.RANGE_RECLAIM_RANGE_INTERVAL !== "240")
+  )
+    fail("RANGE_RECLAIM_ENTRY_POLICY interval");
   if (
     !["15/240", "15/60", "60/240"].includes(
       `${c.INTERVAL}/${c.RANGE_RECLAIM_RANGE_INTERVAL}`,

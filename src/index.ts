@@ -15,3 +15,6 @@ export type {
 } from "./RangeReclaim/engine.js";
 export { createRangeReclaimCore } from "./RangeReclaim/core.js";
 export { buildRangeReclaimFigures } from "./RangeReclaim/figures.js";
+
+export { buildRangeReclaimGateFeatures } from "./RangeReclaim/features.js";
+export { evaluateCombinedEntryPolicy } from "./RangeReclaim/combinedEntryPolicy.js";

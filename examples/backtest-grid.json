@@ -33,5 +33,6 @@
       "direction": "SHORT",
       "minRiskRatio": 1
     }
-  ]
+  ],
+  "RANGE_RECLAIM_ENTRY_POLICY": ["off"]
 }

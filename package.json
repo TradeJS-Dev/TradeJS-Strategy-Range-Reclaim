@@ -1,7 +1,6 @@
 {
   "name": "@tradejs/strategy-range-reclaim",
-  "version": "0.0.0-development",
-  "private": true,
+  "version": "0.1.0",
   "description": "Closed higher-timeframe range failed-breakout reclaim strategy for TradeJS.",
   "keywords": [
     "ai",
@@ -36,7 +35,7 @@
   "scripts": {
     "build": "tsup",
     "format:check": "prettier --check .",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
     "typecheck": "tsc -p ./tsconfig.json --noEmit",
     "checks": "yarn format:check && yarn typecheck && yarn build && yarn test",
     "prettify": "prettier --write ."
@@ -50,5 +49,13 @@
     "@tradejs/core": "^3.0.1",
     "@tradejs/strategy-kit": "^3.0.5",
     "@tradejs/types": "^3.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TradeJS-Dev/TradeJS-Strategy-Range-Reclaim.git"
+  },
+  "homepage": "https://github.com/TradeJS-Dev/TradeJS-Strategy-Range-Reclaim#readme",
+  "bugs": {
+    "url": "https://github.com/TradeJS-Dev/TradeJS-Strategy-Range-Reclaim/issues"
   }
 }
