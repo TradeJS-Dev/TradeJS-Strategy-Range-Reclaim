@@ -183,8 +183,12 @@ Core хранит JSON-состояние через `StrategyAPI.createStateCon
 
 ## Подключение и будущий бэктест
 
-После установки локального архива пакета в отдельный исследовательский Project
-добавьте его в список `strategies` вашей конфигурации:
+Установите стабильную версию в вашем Project и добавьте пакет в список
+`strategies` вашей конфигурации:
+
+```bash
+yarn add --exact @tradejs/strategy-range-reclaim
+```
 
 ```ts
 import { defineConfig } from "@tradejs/core/config";
@@ -196,16 +200,14 @@ export default defineConfig({
 
 При добавлении к существующей композиции сохраните её preset, connectors,
 indicators и runtime. Готовый пример с проверкой типов находится в
-`examples/registration.ts`. Текущий `tradejs-project` в рамках этой задачи не
-менялся. Пакет не опубликован в npm, поэтому установка по одному имени пока
-невозможна.
+`examples/registration.ts`. Сохраните точную установленную версию и lockfile.
 
 Файл `examples/backtest-grid.json` содержит единственную полностью заданную
 конфигурацию 15m/4h в формате Redis backtest grid. Каждое поле содержит массив
 из одного значения, поэтому подбора параметров нет. Перед будущим запуском
 установите пакет и зарегистрируйте эту конфигурацию под именем
-`RangeReclaim:research-v1` в backtest-хранилище Project. В этой задаче Redis
-не изменялся. Комиссию и модель исполнения нужно согласовать с будущим прогоном.
+`RangeReclaim:research-v1` в backtest-хранилище Project. Комиссию и модель
+исполнения согласуйте с условиями прогона.
 
 Команду выполняйте из `tradejs-project`. Пример фиксирует BTCUSDT, Bybit и
 период с 2026-09-01 00:00 UTC до 2026-10-01 00:00 UTC:
