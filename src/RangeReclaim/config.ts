@@ -4,7 +4,13 @@ import type { StrategyConfig } from "@tradejs/types";
 export interface RangeReclaimConfig extends StrategyConfig {
   INTERVAL: "15" | "60";
   RANGE_RECLAIM_ENTRY_POLICY:
-    "off" | "purple" | "orange" | "purple-short" | "intersection" | "union";
+    | "off"
+    | "purple"
+    | "orange"
+    | "purple-short"
+    | "intersection"
+    | "intersection-low-low-short"
+    | "union";
   RANGE_RECLAIM_RANGE_INTERVAL: "60" | "240";
   RANGE_RECLAIM_WAIT_BARS: number;
   RANGE_RECLAIM_MAX_COST_SHARE: number;
@@ -66,6 +72,7 @@ export function parseConfig(input: unknown): RangeReclaimConfig {
       "orange",
       "purple-short",
       "intersection",
+      "intersection-low-low-short",
       "union",
     ].includes(c.RANGE_RECLAIM_ENTRY_POLICY)
   )
