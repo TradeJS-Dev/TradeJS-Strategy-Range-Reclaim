@@ -63,3 +63,13 @@ test("unknown, wrong-symbol, future and expired profiles do not add trades", () 
 test("intersection remains admitted when profile is missing", () => {
   assert.equal(decide({ atr: 1, p: null }).allow, true);
 });
+
+test("the runtime requests the exact frozen Bybit profile universe", () => {
+  assert.deepEqual(
+    strategyEntries[0].manifest.contextRequirements.tickerProfiles,
+    {
+      provider: "bybit",
+      universeId: "range-reclaim-frozen577-20261111",
+    },
+  );
+});
