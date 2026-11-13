@@ -1,5 +1,6 @@
 import type { Signal } from "@tradejs/types";
 
+// Profile validity is checked against the signal clock, including during replay.
 export function isLowLowShort(signal: Signal | undefined): boolean {
   if (signal?.direction !== "SHORT") return false;
   const profile: unknown = signal.additionalIndicators?.tickerProfile;
