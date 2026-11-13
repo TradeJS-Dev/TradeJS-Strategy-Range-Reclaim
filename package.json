@@ -13,10 +13,12 @@
     "node": "24.x"
   },
   "files": [
+    "launch-reports",
     "dist",
     "examples"
   ],
   "exports": {
+    "./launch-reports/*.json": "./launch-reports/*.json",
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",

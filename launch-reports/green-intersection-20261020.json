@@ -1,0 +1,22 @@
+{
+  "schema": "tradejs-launch-report/v1",
+  "strategy": "RangeReclaim",
+  "candidate": "Green intersection without AI gate",
+  "sourceSha256": "61a74f4a8fda356f4cdc01ced494b2b648fe62c555511e077b9252c821e4f49b",
+  "metrics": {
+    "trades": 152,
+    "winRatePercent": 60.526315789473685,
+    "pnl": 288.6094191224095,
+    "maxDrawdown": 53.06422028227197,
+    "profitFactor": 1.8899790609173486,
+    "maxDrawdownDurationDays": 229.86458333333334
+  },
+  "period": {
+    "start": 1697414400000,
+    "end": 1792108800000
+  },
+  "chart": {
+    "caption": "Historical cumulative P&L and drawdown from peak, in USDT.",
+    "sha256": "a0732ebc52eb4d7ffeccf581395d354706bb872e6187621f21504f8a81c3e7b6"
+  }
+}
