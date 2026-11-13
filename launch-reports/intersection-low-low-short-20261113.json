@@ -1,0 +1,24 @@
+{
+  "schema": "tradejs-launch-report/v1",
+  "strategy": "RangeReclaim",
+  "candidate": "Intersection plus low/low short without AI gate",
+  "sourceSha256": "dc60405a5133752f4ff632d79be183de7daee4bbf1bdb5e78c69a66309e3c430",
+  "researchRiskUsdt": 10,
+  "period": {
+    "start": 1697414400000,
+    "end": 1792108800000
+  },
+  "metrics": {
+    "trades": 217,
+    "winRatePercent": 61.29032258064516,
+    "maxDrawdownDurationDays": 351.8854166666667,
+    "maxLossStreak": 4,
+    "maxDrawdown": 59.4161684804334,
+    "pnl": 459.2893888501658,
+    "profitFactor": 1.9123602923233272
+  },
+  "chart": {
+    "caption": "Historical comparison of the low/low short candidate and the prior intersection strategy.",
+    "sha256": "22c8776b5a444cfa36c881e54348492ba547ef63c561af887e2a0e0d3a022a5f"
+  }
+}
